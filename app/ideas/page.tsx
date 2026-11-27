@@ -141,6 +141,41 @@ export default function IdeasPage() {
     fetchIdeas()
   }
 
+  function emailList() {
+    const active = ideas.filter((idea) => !idea.completed)
+    if (active.length === 0) {
+      alert('No active ideas to email.')
+      return
+    }
+
+    const grouped: Record<string, any[]> = {}
+    active.forEach((idea) => {
+      const group = getGroupName(idea.type)
+      if (!grouped[group]) grouped[group] = []
+      grouped[group].push(idea)
+    })
+
+    const groupOrder = ['Dates', 'Activities', 'Vacations', 'Projects', 'Misc', 'Other']
+    let body = 'Here are our current ideas:%0D%0A%0D%0A'
+
+    groupOrder.forEach((group) => {
+      const items = grouped[group] || []
+      if (items.length === 0) return
+      body += `**${group}**%0D%0A%0D%0A`
+      body += 'Title | Description%0D%0A'
+      body += '------|------------%0D%0A'
+      items.forEach((idea) => {
+        const title = (idea.title || '').replace(/\|/g, '-')
+        const desc = (idea.description || '').replace(/\|/g, '-').replace(/%0D%0A/g, ' ')
+        body += `${title} | ${desc}%0D%0A`
+      })
+      body += '%0D%0A'
+    })
+
+    const subject = 'Our Ideas List'
+    window.location.href = `mailto:?subject=${encodeURIComponent(subject)}&body=${body}`
+  }
+
   function priorityColor(priority: string) {
     if (priority === 'high') return 'bg-pink-200 text-pink-900'
     if (priority === 'medium') return 'bg-purple-200 text-purple-900'
@@ -173,16 +208,24 @@ export default function IdeasPage() {
       <div className="max-w-4xl mx-auto">
         <div className="flex justify-between items-center mb-6">
           <h1 className="text-2xl font-bold text-pink-200">
-            🐱 Ideas Dashboard 🐾
+            🐱 JMM & MHM online rememberer 🐾
           </h1>
-          {!showForm && (
+          <div className="flex gap-2">
             <button
-              onClick={openAddForm}
-              className="px-4 py-2 rounded-full bg-pink-500 hover:bg-pink-400 text-white font-medium shadow"
+              onClick={emailList}
+              className="px-4 py-2 rounded-full bg-purple-500 hover:bg-purple-400 text-white font-medium"
             >
-              + Add Idea
+              📧 Email List
             </button>
-          )}
+            {!showForm && (
+              <button
+                onClick={openAddForm}
+                className="px-4 py-2 rounded-full bg-pink-500 hover:bg-pink-400 text-white font-medium shadow"
+              >
+                + Add Idea
+              </button>
+            )}
+          </div>
         </div>
 
         {showForm && (
@@ -306,7 +349,6 @@ export default function IdeasPage() {
           })}
         </div>
 
-        {/* Completed bin */}
         <div className="mt-12">
           <button
             onClick={() => setShowCompleted(!showCompleted)}
