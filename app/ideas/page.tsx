@@ -156,24 +156,25 @@ export default function IdeasPage() {
     })
 
     const groupOrder = ['Dates', 'Activities', 'Vacations', 'Projects', 'Misc', 'Other']
-    let body = 'Here are our current ideas:%0D%0A%0D%0A'
+    let body = 'Here are our current ideas:\n\n'
 
     groupOrder.forEach((group) => {
       const items = grouped[group] || []
       if (items.length === 0) return
-      body += `**${group}**%0D%0A%0D%0A`
-      body += 'Title | Description%0D%0A'
-      body += '------|------------%0D%0A'
+      body += `${group.toUpperCase()}\n`
+      body += '────────────────\n'
       items.forEach((idea) => {
-        const title = (idea.title || '').replace(/\|/g, '-')
-        const desc = (idea.description || '').replace(/\|/g, '-').replace(/%0D%0A/g, ' ')
-        body += `${title} | ${desc}%0D%0A`
+        body += `• ${idea.title || '(no title)'}\n`
+        if (idea.description) {
+          body += `  ${idea.description}\n`
+        }
+        body += '\n'
       })
-      body += '%0D%0A'
+      body += '\n'
     })
 
     const subject = 'Our Ideas List'
-    window.location.href = `mailto:?subject=${encodeURIComponent(subject)}&body=${body}`
+    window.location.href = `mailto:?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`
   }
 
   function priorityColor(priority: string) {
